@@ -1,0 +1,3 @@
+%{"glicko2": {:git, "git://github.com/jlouis/erl-glicko2.git", "e026dcf2504a5a8bf5ce3be123264af70452405d", []},
+  "goldrush": {:git, "git://github.com/DeadZen/goldrush.git", "64864ba7fcf40988361340e48680b49a2c2938cf", [tag: "0.1.7"]},
+  "lager": {:git, "git://github.com/basho/lager.git", "e82bb13efa32a0de747d7dc0e8c567794965cec2", [branch: "master"]}}

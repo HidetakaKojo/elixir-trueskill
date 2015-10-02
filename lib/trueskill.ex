@@ -1,0 +1,2 @@
+defmodule Trueskill do
+end
