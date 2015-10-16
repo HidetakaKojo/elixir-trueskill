@@ -28,7 +28,7 @@ defmodule Trueskill.Mixfile do
   # Type `mix help deps` for more examples and options
   defp deps do
     [
-      {:glicko2, git: "git://github.com/jlouis/erl-glicko2.git"},
+      {:statistics, "~> 0.3.0"}
     ]
   end
 end
