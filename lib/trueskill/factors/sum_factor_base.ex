@@ -15,12 +15,18 @@ defmodule Trueskill.Factors.SumFactorBase do
     new_pi = 1 / (Enum.with_index(coefficients) |> Enum.reduce(0.0, fn({x, idx}, acc) ->
       value = Enum.fetch!(input_values, idx)
       message = Enum.fetch!(input_messages, idx)
-      acc + (:math.pow(x, 2) / (value.pi - message.pi))
+      acc + case (value.pi - message.pi) do
+        0.0 -> 0
+        _ -> (:math.pow(x, 2) / (value.pi - message.pi))
+      end
     end))
     new_tau = new_pi * (Enum.with_index(coefficients) |> Enum.reduce(0.0, fn({x, idx}, acc) ->
       value = Enum.fetch!(input_values, idx)
       message = Enum.fetch!(input_messages, idx)
-      acc + (x * (value.tau - message.tau) / (value.pi - message.pi))
+      acc + case (value.pi - message.pi) do
+        0.0 -> 0.0
+        _ -> (x * (value.tau - message.tau) / (value.pi - message.pi))
+      end
     end))
     new_mean = new_tau / new_pi
     new_message = Gaussian.new_with_precision(new_mean, new_pi)

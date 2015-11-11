@@ -7,8 +7,8 @@ defmodule Trueskill.Factors.TruncateFactor do
       old_message = diff.messages.truncate
       tmp_message = Gaussian.divide(diff.value, old_message)
       pi_s = :math.sqrt(tmp_message.pi)
-      tau_s = case pi_s do
-        0 -> 0
+      tau_s = case :erlang.float(pi_s) do
+        0.0 -> 0.0
         x when is_number(x) -> tmp_message.tau / pi_s
       end
       eps_s = epsilon * pi_s
