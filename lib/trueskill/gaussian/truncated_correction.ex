@@ -2,6 +2,8 @@ defmodule Trueskill.Gaussian.TruncatedCorrection do
   alias Trueskill.Gaussian.Distribution, as: Gaussian
   alias Statistics.Distributions.Normal, as: Statistics
 
+  @minimum_number 2.008270800067899e-17
+
   def v_exceeds_margin(diff, epsilon) do
     denom = Statistics.cdf(diff - epsilon)
     if denom == 0.0 do
@@ -12,7 +14,7 @@ defmodule Trueskill.Gaussian.TruncatedCorrection do
   end
 
   def w_exceeds_margin(diff, epsilon) do
-    v = v_exceeds_margin(diff, epsilon)
+    v = Enum.max([v_exceeds_margin(diff, epsilon), @minimum_number])
     v * (v + diff - epsilon)
   end
 
@@ -35,7 +37,7 @@ defmodule Trueskill.Gaussian.TruncatedCorrection do
   def w_within_margin(diff, epsilon) do
     abs_diff = abs(diff)
     denom = Statistics.cdf(epsilon - abs_diff) - Statistics.cdf(-epsilon - abs_diff)
-      vt = v_within_margin(abs_diff, epsilon)
+    vt = v_within_margin(abs_diff, epsilon)
     :math.pow(vt, 2) + (
       (epsilon - abs_diff) *
       Statistics.pdf(epsilon - abs_diff) -

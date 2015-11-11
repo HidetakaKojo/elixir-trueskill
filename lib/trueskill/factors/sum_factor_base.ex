@@ -16,7 +16,7 @@ defmodule Trueskill.Factors.SumFactorBase do
       value = Enum.fetch!(input_values, idx)
       message = Enum.fetch!(input_messages, idx)
       acc + case (value.pi - message.pi) do
-        0.0 -> 0
+        0.0 -> 0.0
         _ -> (:math.pow(x, 2) / (value.pi - message.pi))
       end
     end))
