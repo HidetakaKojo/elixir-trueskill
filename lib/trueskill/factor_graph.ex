@@ -2,14 +2,20 @@ defmodule Trueskill.FactorGraph do
 
   @beta 25.0/6
   @draw_portability 0.10
-  @gamma 25.0/300
 
   defp sort_by_rank(teams, ranks) do
-    sorted_sets = List.zip([teams, ranks])
-      |> Enum.sort_by(fn(x) -> elem(x, 1) end)
-    sorted_teams = Enum.map(sorted_sets, fn(x) -> elem(x, 0) end)
-    sorted_ranks = Enum.map(sorted_sets, fn(x) -> elem(x, 1) end)
-    [sorted_teams, sorted_ranks]
+    sorted_sets = Enum.zip(teams, ranks)
+      |> Enum.with_index
+      |> Enum.sort_by(fn({{_team, rank}, _idx}) -> rank end)
+    sorted_teams = Enum.map(sorted_sets, fn({{team, _rank}, _idx}) -> team end)
+    sorted_ranks = Enum.map(sorted_sets, fn({{_team, rank}, idx}) -> rank end)
+    prev_indexs = Enum.map(sorted_sets, fn({{_team, _rank}, idx}) -> idx end)
+    [sorted_teams, sorted_ranks, prev_indexs]
+  end
+  defp sort_by_index(teams, indexs) do
+    Enum.zip(teams, indexs)
+      |> Enum.sort_by(fn({_team, index}) -> index end)
+      |> Enum.map(fn({team, _index}) -> team end)
   end
 
   def calculate(teams) do
@@ -23,11 +29,10 @@ defmodule Trueskill.FactorGraph do
     if Enum.count(teams) != Enum.count(ranks) do
       raise "The count of ranks is wrong."
     end
-    [sorted_teams, sorted_ranks] = sort_by_rank(teams, ranks)
+    [sorted_teams, sorted_ranks, prev_indexs] = sort_by_rank(teams, ranks)
 
     beta = options[:beta] || @beta
     draw_portability = options[:draw_portability] || @draw_portability
-    gamma = options[:gamma] || @gamma
 
     skills = Trueskill.Factors.PriorFactor.down(sorted_teams)
     performances = Trueskill.Factors.LikelihoodFactor.down(skills)
@@ -38,6 +43,7 @@ defmodule Trueskill.FactorGraph do
     new_performances = Trueskill.Factors.SumFactor.up(new_team_performances, performances, team_performance_options)
     new_skills = Trueskill.Factors.LikelihoodFactor.up(skills, new_performances)
     new_ratings = Trueskill.Factors.PriorFactor.up(new_skills)
+    sort_by_index(new_ratings, prev_indexs)
   end
 
   defp draw_margin(draw_portability, beta, player_num \\ 2) do
