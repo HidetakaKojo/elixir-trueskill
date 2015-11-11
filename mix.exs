@@ -7,6 +7,7 @@ defmodule Trueskill.Mixfile do
      elixir: "~> 1.0",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
+     preferred_cli_env: [espec: :test],
      deps: deps]
   end
 
@@ -28,7 +29,8 @@ defmodule Trueskill.Mixfile do
   # Type `mix help deps` for more examples and options
   defp deps do
     [
-      {:statistics, "~> 0.3.0"}
+      {:statistics, "~> 0.3.0"},
+      {:espec, "~> 0.8.5", only: :test}
     ]
   end
 end
