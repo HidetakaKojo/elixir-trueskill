@@ -37,8 +37,12 @@ defmodule Trueskill.Factors.SumFactor do
           x.value end)]
         input_messages = [team_performance.messages.sum|Enum.map(rest_player_performances, fn(x) -> 
           x.messages.sum end)]
+        v =  case addaptive do
+          true -> 1
+          false -> Enum.count(player_performances)
+        end
         coefficients = Enum.map(player_performances, fn(_) -> -1 end)
-          |> List.replace_at(0, 1 * Enum.count(player_performances))
+          |> List.replace_at(0, 1 * v)
         [new_value, new_message] =
           sum(player_performance.value, player_performance.messages.sum, input_values, input_messages, coefficients)
         Trueskill.Variable.merge_message(:likelihood,
