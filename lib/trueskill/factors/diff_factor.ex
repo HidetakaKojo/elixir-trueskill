@@ -16,7 +16,7 @@ defmodule Trueskill.Factors.DiffFactor do
       false -> [1, -1]
     end
     length = Enum.count performances
-    new_diffs = Range.new(0, length-2)
+    Range.new(0, length-2)
       |> Enum.to_list
       |> Enum.map(fn(index) ->
            input_values = Enum.slice(performances, index, 2) |> Enum.map(fn(x) -> x.value end)
@@ -25,18 +25,10 @@ defmodule Trueskill.Factors.DiffFactor do
            [new_value, new_message] = sum(diff.value, diff.messages.diff, input_values, input_messages, coefficients)
            %Trueskill.Variable{value: new_value, messages: Map.merge(diff.messages, %{diff: new_message})}
          end)
-    delta = Enum.with_index(new_diffs) |> Enum.map(fn({diff, idx}) ->
-      Gaussian.subtract(diff.value, Enum.fetch!(diffs, idx).value)
-    end) |> Enum.max
-    [new_diffs, delta]
   end
 
   def update_team(diffs, team_performances, is_reverse) do
-    new_team_performances = update_team_recursive(diffs, team_performances, is_reverse)
-    delta = Enum.with_index(new_team_performances) |> Enum.map(fn({perf, idx}) ->
-      Gaussian.subtract(perf.value, Enum.fetch!(team_performances, idx).value)
-    end) |> Enum.max
-    [new_team_performances, delta]
+    update_team_recursive(diffs, team_performances, is_reverse)
   end
   def update_team_recursive([], [rest_team], _is_reverse) do
     [rest_team]

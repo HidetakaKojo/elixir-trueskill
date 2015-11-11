@@ -3,7 +3,7 @@ defmodule Trueskill.Factors.TruncateFactor do
   alias Statistics.Distributions.Normal, as: Statistics
 
   def update(diffs, ranks, epsilon) do
-    compared_diffs = Enum.with_index(diffs) |> Enum.map(fn({diff, idx}) ->
+    Enum.with_index(diffs) |> Enum.map(fn({diff, idx}) ->
       old_message = diff.messages.truncate
       tmp_message = Gaussian.divide(diff.value, old_message)
       pi_s = :math.sqrt(tmp_message.pi)
@@ -21,10 +21,6 @@ defmodule Trueskill.Factors.TruncateFactor do
         |> Gaussian.divide(diff.value)
       %Trueskill.Variable{value: new_value, messages: Map.merge(diff.messages, %{truncate: new_message})}
     end)
-    delta = Enum.with_index(compared_diffs) |> Enum.map(fn({diff, idx}) ->
-      Gaussian.subtract(diff.value, Enum.fetch!(diffs, idx).value)
-    end) |> Enum.max
-    [compared_diffs, delta]
   end
 
   def truncate_same(eps_s, tau_s, message) do
