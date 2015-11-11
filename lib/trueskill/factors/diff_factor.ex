@@ -1,4 +1,5 @@
 defmodule Trueskill.Factors.DiffFactor do
+  import Trueskill.Factors.SumFactorBase
   alias Trueskill.Gaussian.Distribution, as: Gaussian
 
   def diff_teams(performances) do
@@ -15,32 +16,16 @@ defmodule Trueskill.Factors.DiffFactor do
     new_diffs = Range.new(0, length-2)
       |> Enum.to_list
       |> Enum.map(fn(index) ->
-           performance1 = Enum.fetch!(performances, index)
-           performance2 = Enum.fetch!(performances, index+1)
+           input_values = Enum.slice(performances, index, 2) |> Enum.map(fn(x) -> x.value end)
+           input_messages = Enum.slice(performances, index, 2) |> Enum.map(fn(x) -> x.messages.diff end)
            diff = Enum.fetch!(diffs, index)
-           [new_value, new_message] = diff_team([performance1, performance2], diff, coefficients)
+           [new_value, new_message] = sum(diff.value, diff.messages.diff, input_values, input_messages, coefficients)
            %Trueskill.Variable{value: new_value, messages: Map.merge(diff.messages, %{diff: new_message})}
          end)
     delta = Enum.with_index(new_diffs) |> Enum.map(fn({diff, idx}) ->
       Gaussian.subtract(diff.value, Enum.fetch!(diffs, idx).value)
     end) |> Enum.max
     [new_diffs, delta]
-  end
-
-  def diff_team(performances, diff, coefficients) do
-    new_pi = 1 / (Enum.with_index(performances) |> Enum.reduce(0.0, fn({x, idx}, acc) ->
-      message = x.messages.diff
-      acc + (:math.pow(Enum.fetch!(coefficients, idx), 2) / (x.value.pi - message.pi))
-    end))
-    new_tau = new_pi * (Enum.with_index(performances) |> Enum.reduce(0.0, fn({x, idx}, acc) ->
-      message = x.messages.diff
-      acc + (Enum.fetch!(coefficients, idx) * (x.value.tau - message.tau) / (x.value.pi - message.pi))
-    end))
-    new_mean = new_tau / new_pi
-    new_message = Gaussian.new_with_precision(new_mean, new_pi)
-    new_value = Gaussian.divide(diff.value, diff.messages.diff)
-      |> Gaussian.multiply(new_message)
-    [new_value, new_message]
   end
 
   def update_team(diffs, team_performances) do
@@ -56,16 +41,18 @@ defmodule Trueskill.Factors.DiffFactor do
   def update_team_recursive([first_diff|diffs], [first_team|teams]) do
     [second_team|rest_teams] = teams
 
-    first_team_coefficients = [1, 1]
+    first_input_values = [first_diff, second_team] |> Enum.map(fn(x) -> x.value end)
+    first_input_messages = [first_diff, second_team] |> Enum.map(fn(x) -> x.messages.diff end)
     [new_first_team_value, new_first_team_message] =
-      diff_team([first_diff, second_team], first_team, first_team_coefficients)
+      sum(first_team.value, first_team.messages.diff, first_input_values, first_input_messages, [1, 1])
     new_first_team =%Trueskill.Variable{
       value: new_first_team_value,
       messages: Map.merge(first_team.messages, %{diff: new_first_team_message})}
 
-    second_team_coefficients = [1, -1]
+    second_input_values = [first_team, first_diff] |> Enum.map(fn(x) -> x.value end)
+    second_input_messages = [first_team, first_diff] |> Enum.map(fn(x) -> x.messages.diff end)
     [new_second_team_value, new_second_team_message] =
-      diff_team([first_team, first_diff], second_team, second_team_coefficients)
+      sum(second_team.value, second_team.messages.diff, second_input_values, second_input_messages, [1, -1])
     new_second_team =%Trueskill.Variable{
       value: new_second_team_value,
       messages: Map.merge(second_team.messages, %{diff: new_second_team_message})}
