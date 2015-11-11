@@ -13,4 +13,8 @@ defmodule Trueskill.Variable do
         merge_message(key, variable1, variable2)
       end)
   end
+
+  def to_rating(%Trueskill.Variable{} = variable) do
+    Trueskill.Rating.new(variable.value.mu, variable.value.sigma)
+  end
 end

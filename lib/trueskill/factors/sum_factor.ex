@@ -3,7 +3,7 @@ defmodule Trueskill.Factors.SumFactor do
   alias Trueskill.Gaussian.Distribution, as: Gaussian
 
   def down(performances, options) do
-    addaptive = options[:team_performance_addaptive] 
+    addaptive = options[:team_performance_addaptive]
     Enum.map(performances, fn(performance) ->
       input_values = Enum.map(performance, fn(x) ->
         x.value
@@ -22,7 +22,7 @@ defmodule Trueskill.Factors.SumFactor do
   end
 
   def up(team_performances, performances, options) do
-    addaptive = options[:team_performance_addaptive] 
+    addaptive = options[:team_performance_addaptive]
     Enum.zip(team_performances, performances)
       |> Enum.map(fn({team_performance, player_performances}) ->
         update_player_performance(team_performance, player_performances, addaptive)
