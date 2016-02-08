@@ -5,7 +5,7 @@ defmodule Trueskill.Gaussian.TruncatedCorrection do
   @minimum_number 2.008270800067899e-17
 
   def v_exceeds_margin(diff, epsilon) do
-    denom = Statistics.cdf(diff - epsilon)
+    denom = Statistics.cdf().(diff - epsilon)
     if denom == 0.0 do
       -diff + epsilon
     else
@@ -20,8 +20,8 @@ defmodule Trueskill.Gaussian.TruncatedCorrection do
 
   def v_within_margin(diff, epsilon) do
     abs_diff = abs(diff)
-    denom = Statistics.cdf(epsilon - abs_diff) - Statistics.cdf(-epsilon - abs_diff)
-    numer = Statistics.pdf(-epsilon - abs_diff) - Statistics.pdf(epsilon - abs_diff)
+    denom = Statistics.cdf().(epsilon - abs_diff) - Statistics.cdf().(-epsilon - abs_diff)
+    numer = Statistics.pdf().(-epsilon - abs_diff) - Statistics.pdf().(epsilon - abs_diff)
     v = if denom == 0.0 do
       epsilon - abs_diff
     else
@@ -36,13 +36,13 @@ defmodule Trueskill.Gaussian.TruncatedCorrection do
 
   def w_within_margin(diff, epsilon) do
     abs_diff = abs(diff)
-    denom = Statistics.cdf(epsilon - abs_diff) - Statistics.cdf(-epsilon - abs_diff)
+    denom = Statistics.cdf().(epsilon - abs_diff) - Statistics.cdf().(-epsilon - abs_diff)
     vt = v_within_margin(abs_diff, epsilon)
     :math.pow(vt, 2) + (
       (epsilon - abs_diff) *
-      Statistics.pdf(epsilon - abs_diff) -
+      Statistics.pdf().(epsilon - abs_diff) -
       (-epsilon - abs_diff) *
-      Statistics.pdf(-epsilon - abs_diff)
+      Statistics.pdf().(-epsilon - abs_diff)
     ) / denom
   end
 

@@ -57,7 +57,7 @@ defmodule Trueskill.FactorGraph do
   end
 
   defp draw_margin(draw_portability, beta, player_num \\ 2) do
-    Statistics.Distributions.Normal.ppf((draw_portability+1.0) * 0.5) * :math.sqrt(player_num) * beta
+    Statistics.Distributions.Normal.ppf().((draw_portability+1.0) * 0.5) * :math.sqrt(player_num) * beta
   end
 
 end
