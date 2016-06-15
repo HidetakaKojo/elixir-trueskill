@@ -10,7 +10,7 @@ defmodule Trueskill.FactorGraphSpec do
 
     context "when team1 won" do
       it do
-        [[u1,u2,u3,u4],[u5,u6,u7]] = FactorGraph.calculate_ratings([team1, team2], [1, 2], %{team_performance_addaptive: false})
+        [[u1,u2,u3,u4],[u5,u6,u7]] = FactorGraph.calculate_ratings([team1, team2], [1, 2], %{team_performance_adaptive: false})
         IO.inspect u1
         IO.inspect u5
         expect(u1.mean).to be :>, 2000.0
@@ -24,7 +24,7 @@ defmodule Trueskill.FactorGraphSpec do
     end
     context "with draw" do
       it do
-        [[u1,u2,u3,u4],[u5,u6,u7]] = FactorGraph.calculate_ratings([team1, team2], [1, 1], %{team_performance_addaptive: false})
+        [[u1,u2,u3,u4],[u5,u6,u7]] = FactorGraph.calculate_ratings([team1, team2], [1, 1], %{team_performance_adaptive: false})
         expect(u1.mean).to be :>, 2000.0
         expect(u2.mean).to be :>, 1600.0
         expect(u3.mean).to be :>, 1200.0
@@ -36,7 +36,7 @@ defmodule Trueskill.FactorGraphSpec do
     end
     context "when team2 won" do
       it do
-        [[u5,u6,u7],[u1,u2,u3,u4]] = FactorGraph.calculate_ratings([team2, team1], [1, 2], %{team_performance_addaptive: false})
+        [[u5,u6,u7],[u1,u2,u3,u4]] = FactorGraph.calculate_ratings([team2, team1], [1, 2], %{team_performance_adaptive: false})
         expect(u1.mean).to be :<, 2000.0
         expect(u2.mean).to be :<, 1600.0
         expect(u3.mean).to be :<, 1200.0

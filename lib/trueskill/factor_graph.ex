@@ -6,7 +6,7 @@ defmodule Trueskill.FactorGraph do
   def team_rating(team, options \\ %{}) do
     skills = Trueskill.Factors.PriorFactor.down([team])
     performances = Trueskill.Factors.LikelihoodFactor.down(skills)
-    team_performance_options = Map.take(options, [:team_performance_addaptive])
+    team_performance_options = Map.take(options, [:team_performance_adaptive])
     Trueskill.Factors.SumFactor.down(performances, team_performance_options)
       |> Enum.map(fn(x) -> Trueskill.Variable.to_rating(x) end)
       |> List.first
@@ -30,7 +30,7 @@ defmodule Trueskill.FactorGraph do
 
     skills = Trueskill.Factors.PriorFactor.down(sorted_teams)
     performances = Trueskill.Factors.LikelihoodFactor.down(skills)
-    team_performance_options = Map.take(options, [:team_performance_addaptive])
+    team_performance_options = Map.take(options, [:team_performance_adaptive])
     team_performances = Trueskill.Factors.SumFactor.down(performances, team_performance_options)
     margin = draw_margin(draw_portability, beta, Enum.count(teams))
     new_team_performances = Trueskill.Factors.IteratedFactor.iterate(team_performances, sorted_ranks, margin)

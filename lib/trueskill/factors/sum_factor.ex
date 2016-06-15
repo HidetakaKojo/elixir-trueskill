@@ -3,7 +3,7 @@ defmodule Trueskill.Factors.SumFactor do
   alias Trueskill.Gaussian.Distribution, as: Gaussian
 
   def down(performances, options) do
-    addaptive = options[:team_performance_addaptive]
+    adaptive = options[:team_performance_adaptive]
     Enum.map(performances, fn(performance) ->
       input_values = Enum.map(performance, fn(x) ->
         x.value
@@ -15,29 +15,29 @@ defmodule Trueskill.Factors.SumFactor do
         end
       end)
       coefficients = Enum.map(performance, fn(_) -> 1 end)
-        |> adjust_coefficients(addaptive)
+        |> adjust_coefficients(adaptive)
       [new_value, new_message] = sum(Gaussian.new, Gaussian.new, input_values, input_messages, coefficients)
       %Trueskill.Variable{value: new_value, messages: %{sum: new_message, diff: Gaussian.new}}
     end)
   end
 
   def up(team_performances, performances, options) do
-    addaptive = options[:team_performance_addaptive]
+    adaptive = options[:team_performance_adaptive]
     Enum.zip(team_performances, performances)
       |> Enum.map(fn({team_performance, player_performances}) ->
-        update_player_performance(team_performance, player_performances, addaptive)
+        update_player_performance(team_performance, player_performances, adaptive)
       end)
   end
 
-  defp update_player_performance(team_performance, player_performances, addaptive) do
+  defp update_player_performance(team_performance, player_performances, adaptive) do
     Enum.with_index(player_performances)
       |> Enum.map(fn({player_performance, idx}) ->
         rest_player_performances = List.delete_at(player_performances, idx)
-        input_values = [team_performance.value|Enum.map(rest_player_performances, fn(x) -> 
+        input_values = [team_performance.value|Enum.map(rest_player_performances, fn(x) ->
           x.value end)]
-        input_messages = [team_performance.messages.sum|Enum.map(rest_player_performances, fn(x) -> 
+        input_messages = [team_performance.messages.sum|Enum.map(rest_player_performances, fn(x) ->
           x.messages.sum end)]
-        v =  case addaptive do
+        v =  case adaptive do
           true -> 1
           false -> Enum.count(player_performances)
         end
