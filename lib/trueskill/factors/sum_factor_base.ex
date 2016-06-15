@@ -1,10 +1,10 @@
 defmodule Trueskill.Factors.SumFactorBase do
   alias Trueskill.Gaussian.Distribution, as: Gaussian
 
-  def adjust_coefficients(coefficients, addaptive) do
+  def adjust_coefficients(coefficients, adaptive) do
     input_size = Enum.count(coefficients)
     Enum.map(coefficients, fn(x) ->
-      case addaptive do
+      case adaptive do
         false -> x / input_size
         true  -> x
       end
